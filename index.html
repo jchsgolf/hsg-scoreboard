@@ -1,41 +1,37 @@
 <script>
   const sheetURL =
-    "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0/gviz/tq?tqx=out:json&sheet=live%20data%20outputs";
+    "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0"
+    + "/gviz/tq?tqx=out:json&gid=0";
 
   async function fetchData() {
-    try {
-      const res  = await fetch(sheetURL);
-      const text = await res.text();
-      const json = JSON.parse(text.substring(47).slice(0, -2));
-      const rows = json.table.rows;
-      const data = {};
+    const res  = await fetch(sheetURL);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const rows = json.table.rows;
+    const data = {};
 
-      rows.forEach(r => {
-        const rawKey = r.c[0]?.v;
-        if (!rawKey) return;
-        // remove all non-alphanumeric characters and spaces
-        const key = rawKey.replace(/[^a-zA-Z0-9]/g, "");
-        const cell = r.c[1];
-        const val  = cell?.f !== undefined ? cell.f : cell?.v;
-        data[key] = val;
-      });
+    rows.forEach(r => {
+      const rawKey = r.c[0]?.v;
+      if (!rawKey) return;
+      const key = rawKey.replace(/[^A-Za-z0-9]/g, "");
+      const cell = r.c[1];
+      data[key] = cell?.f ?? cell?.v;
+    });
 
-      document.getElementById("hole").innerText    = data.CurrentHole    || "--";
-      document.getElementById("toAct").innerText   = data.PlayerToAct    || "--";
-      document.getElementById("action").innerText  = data.Action         || "--";
-      document.getElementById("ante").innerText    = data.Ante           || "--";
-      document.getElementById("button").innerText  = data.Button         || "--";
-      document.getElementById("pot").innerText     = data.Pot            || "--";
-      document.getElementById("player1").innerText = 
-        `${data.Player1 || "--"} | Purse: ${data.Player1Purse || "--"}`;
-      document.getElementById("player2").innerText = 
-        `${data.Player2 || "--"} | Purse: ${data.Player2Purse || "--"}`;
+    console.log("Sheet data keys:", Object.keys(data), data);
 
-    } catch (err) {
-      console.error("Error fetching data:", err);
-    }
+    document.getElementById("hole").innerText    = data.CurrentHole    || "--";
+    document.getElementById("toAct").innerText   = data.PlayerToAct    || "--";
+    document.getElementById("action").innerText  = data.Action         || "--";
+    document.getElementById("ante").innerText    = data.Ante           || "--";
+    document.getElementById("button").innerText  = data.Button         || "--";
+    document.getElementById("pot").innerText     = data.Pot            || "--";
+    document.getElementById("player1").innerText =
+      `${data.Player1 || "--"} | Purse: ${data.Player1Purse || "--"}`;
+    document.getElementById("player2").innerText =
+      `${data.Player2 || "--"} | Purse: ${data.Player2Purse || "--"}`;
   }
 
-  window.onload    = fetchData;
+  window.onload  = fetchData;
   setInterval(fetchData, 3000);
 </script>

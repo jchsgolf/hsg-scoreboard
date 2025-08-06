@@ -58,14 +58,14 @@
           }
         });
 
-        document.getElementById("hole").innerText = data.CurrentHole;
-        document.getElementById("toAct").innerText = data.PlayerToAct;
-        document.getElementById("action").innerText = data.Action;
+        document.getElementById("hole").innerText = {data.CurrentHole};
+        document.getElementById("toAct").innerText = {data.PlayerToAct};
+        document.getElementById("action").innerText = {data.Action};
         document.getElementById("ante").innerText = `$${data.Ante}`;
-        document.getElementById("button").innerText = data.Button;
+        document.getElementById("button").innerText = {data.Button};
         document.getElementById("pot").innerText = `$${data.Pot}`;
-        document.getElementById("player1").innerText = `${data.Player1} | Purse: $${data.Player1Purse}`;
-        document.getElementById("player2").innerText = `${data.Player2} | Purse: $${data.Player2Purse}`;
+        document.getElementById("player1").innerText = `{data.Player1} | Purse: $${data.Player1Purse}`;
+        document.getElementById("player2").innerText = `{data.Player2} | Purse: $${data.Player2Purse}`;
 
       } catch (err) {
         console.error("Error fetching data:", err);

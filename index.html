@@ -4,35 +4,12 @@
   <meta charset="UTF-8">
   <title>High Stakes Golf Live Scoreboard</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background-color: #111;
-      color: #fff;
-      margin: 0;
-      padding: 2rem;
-      font-size: 2rem;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin: 0.75rem 0;
-    }
-    .label {
-      color: #aaa;
-    }
-    .value {
-      font-weight: bold;
-      color: #0f0;
-    }
+    body { font-family: sans-serif; background-color: #111; color: #fff; margin: 0; padding: 2rem; font-size: 2rem; }
+    .container { max-width: 900px; margin: auto; }
+    h1 { text-align: center; font-size: 3rem; margin-bottom: 1rem; }
+    .row { display: flex; justify-content: space-between; margin: 0.75rem 0; }
+    .label { color: #aaa; }
+    .value { font-weight: bold; color: #0f0; }
   </style>
   <script>
     const sheetURL = "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0/gviz/tq?tqx=out:json&sheet=live%20data%20outputs";
@@ -43,24 +20,23 @@
         const text = await res.text();
         const json = JSON.parse(text.substring(47).slice(0, -2));
         const rows = json.table.rows;
-
         const data = {};
         rows.forEach(row => {
           const key = row.c[0]?.v;
           const val = row.c[1]?.v;
-          if (key && val !== null) {
-            data[key] = val;
-          }
+          if (key) data[key] = val;
         });
 
-        document.getElementById("hole").innerText = data.CurrentHole;
-        document.getElementById("toAct").innerText = data.PlayerToAct;
-        document.getElementById("action").innerText = data.Action;
-        document.getElementById("ante").innerText = `$${data.Ante}`;
-        document.getElementById("button").innerText = data.Button;
-        document.getElementById("pot").innerText = `$${data.Pot}`;
-        document.getElementById("player1").innerText = `${data.Player1} | Purse: $${data.Player1Purse}`;
-        document.getElementById("player2").innerText = `${data.Player2} | Purse: $${data.Player2Purse}`;
+        // Fallbacks for keys with or without spaces
+        const get = (a, b) => data[a] !== undefined ? data[a] : data[b];
+        document.getElementById("hole").innerText = get("CurrentHole", "Current Hole") || "--";
+        document.getElementById("toAct").innerText = get("PlayerToAct", "Player To Act") || "--";
+        document.getElementById("action").innerText = data["Action"] || "--";
+        document.getElementById("ante").innerText = `$${get("Ante", "Ante") || 0}`;
+        document.getElementById("button").innerText = data["Button"] || "--";
+        document.getElementById("pot").innerText = `$${get("Pot", "Pot") || 0}`;
+        document.getElementById("player1").innerText = `${get("Player1", "Player 1") || "--"} | Purse: $${get("Player1Purse", "Player 1 Purse") || 0}`;
+        document.getElementById("player2").innerText = `${get("Player2", "Player 2") || "--"} | Purse: $${get("Player2Purse", "Player 2 Purse") || 0}`;
 
       } catch (err) {
         console.error("Error fetching data:", err);

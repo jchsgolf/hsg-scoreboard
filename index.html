@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>High Stakes Golf Live Scoreboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #111;
+      color: #fff;
+      margin: 0;
+      padding: 2rem;
+      font-size: 2rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.75rem 0;
+    }
+    .label {
+      color: #aaa;
+    }
+    .value {
+      font-weight: bold;
+      color: #0f0;
+    }
+  </style>
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0/gviz/tq?tqx=out:json&sheet=live%20data%20outputs";
+
+    async function fetchData() {
+      try {
+        const res = await fetch(sheetURL);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+        const rows = json.table.rows;
+
+        const data = {};
+        rows.forEach(row => {
+          const key = row.c[0]?.v;
+          const val = row.c[1]?.v;
+          if (key && val !== null) {
+            data[key] = val;
+          }
+        });
+
+        document.getElementById("hole").innerText = data.CurrentHole;
+        document.getElementById("toAct").innerText = data.PlayerToAct;
+        document.getElementById("action").innerText = data.Action;
+        document.getElementById("ante").innerText = `$${data.Ante}`;
+        document.getElementById("button").innerText = data.Button;
+        document.getElementById("pot").innerText = `$${data.Pot}`;
+        document.getElementById("player1").innerText = `${data.Player1} | Purse: $${data.Player1Purse}`;
+        document.getElementById("player2").innerText = `${data.Player2} | Purse: $${data.Player2Purse}`;
+
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    }
+
+    setInterval(fetchData, 3000);
+    window.onload = fetchData;
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>High Stakes Golf</h1>
+    <div class="row"><span class="label">Current Hole:</span><span class="value" id="hole">--</span></div>
+    <div class="row"><span class="label">Player To Act:</span><span class="value" id="toAct">--</span></div>
+    <div class="row"><span class="label">Action:</span><span class="value" id="action">--</span></div>
+    <div class="row"><span class="label">Ante:</span><span class="value" id="ante">--</span></div>
+    <div class="row"><span class="label">Button:</span><span class="value" id="button">--</span></div>
+    <div class="row"><span class="label">Pot:</span><span class="value" id="pot">--</span></div>
+    <div class="row"><span class="label">Player 1:</span><span class="value" id="player1">--</span></div>
+    <div class="row"><span class="label">Player 2:</span><span class="value" id="player2">--</span></div>
+  </div>
+</body>
+</html>

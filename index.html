@@ -4,67 +4,86 @@
   <meta charset="UTF-8">
   <title>High Stakes Golf Live Scoreboard</title>
   <style>
-    body { font-family: sans-serif; background-color: #111; color: #fff; margin: 0; padding: 2rem; font-size: 2rem; }
-    .container { max-width: 900px; margin: auto; }
-    h1 { text-align: center; font-size: 3rem; margin-bottom: 1rem; }
-    .row { display: flex; justify-content: space-between; margin: 0.75rem 0; }
-    .label { color: #aaa; }
-    .value { font-weight: bold; color: #0f0; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-top: 2rem;
+      font-size: 3rem;
+    }
+    .scoreboard {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 2rem;
+      line-height: 1.5;
+    }
+    .purse {
+      margin-top: 1rem;
+      font-size: 1.8rem;
+    }
   </style>
   <script>
-    const sheetURL =
-        "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0/gviz/tq?tqx=out:json&gid=123456789";
-    
-    async function fetchData() {
+    // Replace gid=0 with the gid of your "Live Data Outputs" tab if different
+    const sheetURL = 
+      "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0"
+      + "/gviz/tq?tqx=out:json&gid=0";
+
+    async function fetchCells() {
       try {
         const res  = await fetch(sheetURL);
-        const text = await res.text();
-        const json = JSON.parse(text.substring(47).slice(0, -2));
-        const rows = json.table.rows;
-        const data = {};
+        const txt  = await res.text();
+        const js   = JSON.parse(txt.substring(47).slice(0, -2));
+        const rows = js.table.rows;
 
-        rows.forEach(r => {
-          const rawKey = r.c[0]?.v;
-          if (!rawKey) return;
-          const key = rawKey.replace(/[^A-Za-z0-9]/g, "");
-          const cell = r.c[1];
-          const val  = cell?.f !== undefined ? cell.f : cell?.v;
-          data[key] = val;
-        });
+        // Helper to get Bn (row n, column B) formatted or raw
+        function getBn(n) {
+          const cell = rows[n-1].c[1];
+          if (!cell) return "--";
+          return (cell.f !== undefined ? cell.f : cell.v);
+        }
 
-        console.log("Sheet data keys:", Object.keys(data), data);
+        // Populate the page
+        document.getElementById("hole").innerText      = getBn(1);
+        document.getElementById("button").innerText    = getBn(5);
+        document.getElementById("b2").innerText        = getBn(2);
+        document.getElementById("b3").innerText        = getBn(3);
+        document.getElementById("ante").innerText      = getBn(4);
+        document.getElementById("pot").innerText       = getBn(6);
+        document.getElementById("p1").innerText        = getBn(7);
+        document.getElementById("p1purse").innerText   = getBn(8);
+        document.getElementById("p2").innerText        = getBn(9);
+        document.getElementById("p2purse").innerText   = getBn(10);
 
-        document.getElementById("hole").innerText    = data.CurrentHole    || "--";
-        document.getElementById("toAct").innerText   = data.PlayerToAct    || "--";
-        document.getElementById("action").innerText  = data.Action         || "--";
-        document.getElementById("ante").innerText    = data.Ante           || "--";
-        document.getElementById("button").innerText  = data.Button         || "--";
-        document.getElementById("pot").innerText     = data.Pot            || "--";
-        document.getElementById("player1").innerText =
-          `${data.Player1 || "--"} | Purse: ${data.Player1Purse || "--"}`;
-        document.getElementById("player2").innerText =
-          `${data.Player2 || "--"} | Purse: ${data.Player2Purse || "--"}`;
-
-      } catch (err) {
-        console.error("Error fetching data:", err);
+      } catch(e) {
+        console.error("Fetch error", e);
       }
     }
 
-    window.onload = fetchData;
-    setInterval(fetchData, 3000);
+    window.onload = fetchCells;
+    setInterval(fetchCells, 3000);
   </script>
 </head>
 <body>
-  <div class="container">
-    <h1>High Stakes Golf</h1>
-    <div class="row"><span class="label">Current Hole:</span><span class="value" id="hole">--</span></div>
-    <div class="row"><span class="label">Player To Act:</span><span class="value" id="toAct">--</span></div>
-    <div class="row"><span class="label">Action:</span><span class="value" id="action">--</span></div>
-    <div class="row"><span class="label">Ante:</span><span class="value" id="ante">--</span></div>
-    <div class="row"><span class="label">Button:</span><span class="value" id="button">--</span></div>
-    <div class="row"><span class="label">Pot:</span><span class="value" id="pot">--</span></div>
-    <div class="row"><span class="label">Player 1:</span><span class="value" id="player1">--</span></div>
-    <div class="row"><span class="label">Player 2:</span><span class="value" id="player2">--</span></div>
+  <h1>High Stakes Golf</h1>
+  <div class="scoreboard">
+    Current Hole <span id="hole">--</span><br>
+    Button <span id="button">--</span><br>
+    <span id="b2">--</span><br>
+    <span id="b3">--</span> is to you<br>
+    Ante <span id="ante">--</span><br>
+    Pot <span id="pot">--</span><br>
+    <div class="purse">
+      Purse<br>
+      <span id="p1">--</span> | <span id="p1purse">--</span><br>
+      <span id="p2">--</span> | <span id="p2purse">--</span>
+    </div>
   </div>
 </body>
 </html>

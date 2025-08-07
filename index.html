@@ -30,10 +30,10 @@
     }
   </style>
   <script>
-    // Replace gid=0 with the gid of your "Live Data Outputs" tab if different
-    const sheetURL = 
+    // Fetch from the published "Live Data Outputs" sheet by name
+    const sheetURL =
       "https://docs.google.com/spreadsheets/d/1w7w6dWX-I6qlMqzJSA8jSU4_4Ygf_PUMoeXRWAo5hP0"
-      + "/gviz/tq?tqx=out:json&gid=0";
+      + "/gviz/tq?tqx=out:json&sheet=Live%20Data%20Outputs";
 
     async function fetchCells() {
       try {
@@ -42,31 +42,30 @@
         const js   = JSON.parse(txt.substring(47).slice(0, -2));
         const rows = js.table.rows;
 
-        // Helper to get Bn (row n, column B) formatted or raw
-        function getBn(n) {
+        // Helper: get Bn (row n, column B), formatted if available
+        function B(n) {
           const cell = rows[n-1].c[1];
           if (!cell) return "--";
-          return (cell.f !== undefined ? cell.f : cell.v);
+          return cell.f !== undefined ? cell.f : cell.v;
         }
 
-        // Populate the page
-        document.getElementById("hole").innerText      = getBn(1);
-        document.getElementById("button").innerText    = getBn(5);
-        document.getElementById("b2").innerText        = getBn(2);
-        document.getElementById("b3").innerText        = getBn(3);
-        document.getElementById("ante").innerText      = getBn(4);
-        document.getElementById("pot").innerText       = getBn(6);
-        document.getElementById("p1").innerText        = getBn(7);
-        document.getElementById("p1purse").innerText   = getBn(8);
-        document.getElementById("p2").innerText        = getBn(9);
-        document.getElementById("p2purse").innerText   = getBn(10);
+        document.getElementById("hole").innerText    = B(1);
+        document.getElementById("button").innerText  = B(5);
+        document.getElementById("b2").innerText      = B(2);
+        document.getElementById("b3").innerText      = B(3);
+        document.getElementById("ante").innerText    = B(4);
+        document.getElementById("pot").innerText     = B(6);
+        document.getElementById("p1").innerText      = B(7);
+        document.getElementById("p1purse").innerText = B(8);
+        document.getElementById("p2").innerText      = B(9);
+        document.getElementById("p2purse").innerText = B(10);
 
-      } catch(e) {
-        console.error("Fetch error", e);
+      } catch (e) {
+        console.error("Error fetching sheet data", e);
       }
     }
 
-    window.onload = fetchCells;
+    window.onload    = fetchCells;
     setInterval(fetchCells, 3000);
   </script>
 </head>
